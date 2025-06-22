@@ -8,9 +8,6 @@ enum CallStatus {
   FINISHED = "FINISHED",
 }
 
-interface AgentProps {
-  userName: string;
-}
 
 const Agent = ({ userName }: AgentProps) => {
   const callStatus = CallStatus.FINISHED; // Simulating call status
@@ -62,17 +59,17 @@ const Agent = ({ userName }: AgentProps) => {
       )}
 
       <div className="w-full flex justify-center">
-        {callStatus !== CallStatus.ACTIVE ? (
+        {callStatus !=='ACTIVE' ? (
           <button className="relative btn-call">
             <span
               className={cn(
-                "absolute animate-ping rounded-full opacity-75",
-                callStatus !== CallStatus.CONNECTING && "hidden"
+                'absolute animate-ping rounded-full opacity-75',
+                callStatus !=='CONNECTING' && 'hidden'
               )}
             />
             <span className="relative">
-              {callStatus === CallStatus.INACTIVE ||
-              callStatus === CallStatus.FINISHED
+              {callStatus === 'INACTIVE' ||
+              callStatus === 'FINISHED'
                 ? "Call"
                 : "Connecting..."}
             </span>
