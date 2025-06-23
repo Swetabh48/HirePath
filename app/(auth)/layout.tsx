@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 const AuthLayout = async({ children}:{children:ReactNode}) => {
     const isUserAutenticated = await isAuthenticated();
   
-    if(!isUserAutenticated)
+    if(isUserAutenticated)
       redirect('/');
 
   return (
