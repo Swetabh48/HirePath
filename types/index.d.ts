@@ -39,7 +39,7 @@ interface User {
 }
 
 interface InterviewCardProps {
-  interviewId?: string;
+  id?: string;
   userId?: string;
   role: string;
   type: string;
@@ -86,7 +86,7 @@ interface SignUpParams {
 type FormType = "sign-in" | "sign-up";
 
 interface InterviewFormProps {
-  id?: string;
+  interviewId?: string;
   role: string;
   level: string;
   type: string;
