@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum GoalType {
+  LOSS
+  MAINTAIN
+  GAIN
+}
+
+enum MealSource {
+  MANUAL
+  AI_TEXT
+  AI_IMAGE
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  profile       Profile?
+  meals         Meal[]
+  mealPlans     MealPlan[]
+  progressLogs  ProgressLog[]
+  notifications Notification[]
+}
+
+model Profile {
+  id                 String    @id @default(cuid())
+  user               User      @relation(fields: [userId], references: [id])
+  userId             String    @unique
+  age                Int
+  gender             Gender
+  heightCm           Float
+  weightKg           Float
+  activityLevel      Float     @default(1.2) // sedentary default
+  goal               GoalType  @default(MAINTAIN)
+  dietaryPreferences String[]  @default([])
+  allergies          String[]  @default([])
+  dailyCalorieTarget Int?
+  proteinTargetGrams Int?
+  carbsTargetGrams   Int?
+  fatsTargetGrams    Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Meal {
+  id            String     @id @default(cuid())
+  user          User       @relation(fields: [userId], references: [id])
+  userId        String
+  occurredAt    DateTime   @default(now())
+  source        MealSource @default(MANUAL)
+  note          String?
+  totalCalories Int        @default(0)
+  totalProtein  Int        @default(0)
+  totalCarbs    Int        @default(0)
+  totalFat      Int        @default(0)
+  items         FoodItem[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([userId, occurredAt])
+}
+
+model FoodItem {
+  id           String   @id @default(cuid())
+  meal         Meal     @relation(fields: [mealId], references: [id])
+  mealId       String
+  name         String
+  brand        String?
+  quantity     Float    @default(1)
+  unit         String   @default("serving")
+  calories     Int      @default(0)
+  protein      Int      @default(0)
+  carbs        Int      @default(0)
+  fat          Int      @default(0)
+  micronutrients Json?
+}
+
+model MealPlan {
+  id          String      @id @default(cuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  createdByAi Boolean     @default(true)
+  items       PlanItem[]
+  createdAt   DateTime    @default(now())
+}
+
+model PlanItem {
+  id           String    @id @default(cuid())
+  plan         MealPlan  @relation(fields: [planId], references: [id])
+  planId       String
+  date         DateTime
+  mealType     MealType
+  recipeTitle  String
+  instructions String?
+  ingredients  Json?
+  portion      String?
+  calories     Int
+  protein      Int
+  carbs        Int
+  fat          Int
+}
+
+model ProgressLog {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  date      DateTime @default(now())
+  weightKg  Float
+  bmi       Float?
+  notes     String?
+
+  @@unique([userId, date])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  type        String
+  content     String
+  scheduledAt DateTime
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
